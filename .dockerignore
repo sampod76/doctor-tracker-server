@@ -1,0 +1,48 @@
+# --- Node.js & PNPM ---
+node_modules
+.pnpm-store
+
+npm-debug.log*
+
+# --- Environment & Secrets ---
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
+!.env.example
+
+# --- Build Artifacts ---
+dist
+build
+coverage
+logs
+*.log
+
+# --- Docker & Compose ---
+Dockerfile*
+docker-compose*.yml
+
+# --- Git & IDE ---
+.git
+.gitignore
+.gitattributes
+.vscode
+.idea
+*.swp
+*.swo
+*.bak
+
+# --- OS Junk Files ---
+.DS_Store
+Thumbs.db
+
+# --- Temporary / Cache ---
+.tmp
+temp
+.cache
+.eslintcache
+
+# --- Ensure these are INCLUDED in build context ---
+!ecosystem.config.js
+!.npmrc

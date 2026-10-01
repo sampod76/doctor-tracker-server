@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(npx tsc:*)",
+      "Read(//d D:/holidays/**)",
+      "Bash(powershell -Command \"Test-Path 'D:\\\\holidays\\\\naria_holidays_server\\\\node_modules\\\\.prisma\\\\client\\\\index.d.ts'\")",
+      "Bash(dir:*)",
+      "Bash(ping:*)",
+      "Bash(pnpm tsc:check)",
+      "Bash(pnpm run:*)",
+      "Bash(Test-Path D:\\\\holidays\\\\naria_holidays_server\\\\typecheck.log)",
+      "Bash(tee typecheck.log)",
+      "Bash(powershell -Command \"if \\(Test-Path 'D:\\\\holidays\\\\naria_holidays_server\\\\node_modules\\\\@prisma\\\\client'\\) { Get-ChildItem 'D:\\\\holidays\\\\naria_holidays_server\\\\node_modules\\\\@prisma\\\\client' | Select-Object Name; } else { Write-Output 'no @prisma/client' }\")",
+      "Bash(powershell -Command \"Get-Content 'D:\\\\holidays\\\\naria_holidays_server\\\\node_modules\\\\@prisma\\\\client\\\\index.d.ts' | Select-Object -First 50\")",
+      "Bash(powershell -Command \"Get-ChildItem 'D:\\\\holidays\\\\naria_holidays_server\\\\node_modules\\\\.prisma\\\\client' | Select-Object Name\")",
+      "Bash(powershell -Command \"Get-ChildItem 'D:\\\\holidays\\\\naria_holidays_server\\\\node_modules' -Filter '.prisma' -Recurse -ErrorAction SilentlyContinue | Select-Object FullName\")",
+      "Bash(powershell -Command \"Get-ChildItem 'D:\\\\holidays\\\\naria_holidays_server\\\\node_modules\\\\.pnpm\\\\@prisma+client@6.14.0_prism_634b6e3fd4ef4410be3a681b80c110c4\\\\node_modules\\\\.prisma\\\\client' | Select-Object Name\")",
+      "Bash(powershell -Command \"Get-Content 'D:\\\\holidays\\\\naria_holidays_server\\\\prisma\\\\schema.prisma' | Select-Object -First 20\")",
+      "Bash(npx eslint:*)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(echo \"EXIT_CODE=$?\")",
+      "Bash(powershell -Command \"Get-Item 'D:\\\\holidays\\\\naria_holidays_server\\\\automation-rules.json' | Select-Object Length\")",
+      "Bash(cd /d D:holidaysnaria_holidays_server)",
+      "Bash(node generate-automation-rules.js)",
+      "Bash(node:*)",
+      "Bash(grep -v \"import\\\\|//\")",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm babelBuild)",
+      "Bash(pnpm lint:check)",
+      "Bash(wc -l tests/automation/*.ts)",
+      "Bash(pnpm build:*)",
+      "Bash(GIT_PAGER=cat git diff src/app.ts)",
+      "Bash(npx tsx:*)"
+    ]
+  }
+}

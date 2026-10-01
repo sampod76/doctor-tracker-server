@@ -1,0 +1,21 @@
+node_modules/
+.cph
+
+.env
+.env.production
+.env.local
+
+logger/
+dist/
+.vercel/
+
+uploadFile/
+Archive.zip
+
+# Logs
+logs/
+*.log
+*.tsbuildinfo
+
+# Local test caches
+coverage/

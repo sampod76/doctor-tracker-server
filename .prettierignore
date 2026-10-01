@@ -1,0 +1,25 @@
+# Ignore node modules
+node_modules/
+
+# Ignore build output
+dist/
+logs/
+coverage/
+
+# Ignore environment files
+.env
+.env.*
+
+# Ignore VSCode settings
+.vscode/
+
+# Ignore compiled files and temp files
+*.log
+*.tsbuildinfo
+
+# Ignore public assets
+public/
+
+# Optionally ignore git-related folders and files
+.git/
+.gitignore
