@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import type { JwtPayload } from "jsonwebtoken";
 import httpStatus from "http-status";
 import { PipelineStage, Types } from "mongoose";
 import { USER_ROLE } from "../../../global/enums/users";
@@ -19,7 +20,7 @@ import { ChangePasswordDto, LoginDto } from "./authentication.validation";
 type AuthTokens = {
   accessToken: string;
   refreshToken: string;
-  expiresIn: string;
+  expiresIn: number;
 };
 
 export type AuthResult = AuthTokens & {
@@ -30,14 +31,20 @@ const issueTokens = (payload: Record<string, unknown>): AuthTokens => {
   const accessToken = jwtHelpers.createToken(
     payload,
     accessTokenSecret,
-    accessTokenExpiresIn as never,
+    accessTokenExpiresIn,
   );
 
-  const refreshToken = jwtHelpers.createToken(payload, refreshTokenSecret, {
-    expiresIn: refreshTokenExpiresIn as never,
-  } as never);
+  const refreshToken = jwtHelpers.createToken(
+    payload,
+    refreshTokenSecret,
+    refreshTokenExpiresIn,
+  );
 
-  return { accessToken, refreshToken, expiresIn: accessTokenExpiresIn };
+  return {
+    accessToken,
+    refreshToken,
+    expiresIn: accessTokenExpiresIn,
+  };
 };
 
 export class AuthenticationService extends AbstractService {
@@ -78,12 +85,9 @@ export class AuthenticationService extends AbstractService {
   }
 
   async refresh(refreshToken: string): Promise<AuthResult> {
-    let decoded: { userId: string };
+    let decoded: JwtPayload;
     try {
-      decoded = jwtHelpers.verifyToken(
-        refreshToken,
-        refreshTokenSecret,
-      ) as never;
+      decoded = jwtHelpers.verifyToken(refreshToken, refreshTokenSecret);
     } catch {
       throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid refresh token");
     }

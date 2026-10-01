@@ -4,20 +4,20 @@ import { logger } from "../share/logger";
 import { env } from "./env";
 
 mongoose.connection.on("connected", () => {
-  logger.info("[db] mongoose connected");
+  logger.info("database -> mongoose connected");
 });
 
 mongoose.connection.on("error", err => {
   const message = err instanceof Error ? err.message : String(err);
-  logger.error(`[db] mongoose error: ${message}`);
+  logger.error(`database -> mongoose error: ${message}`);
 });
 
 mongoose.connection.on("disconnected", () => {
-  logger.warn("[db] mongoose disconnected");
+  logger.warn("database -> mongoose disconnected");
 });
 
 mongoose.connection.on("reconnected", () => {
-  logger.info("[db] mongoose reconnected");
+  logger.info("database -> mongoose reconnected");
 });
 
 export async function connectDatabase(): Promise<typeof mongoose> {

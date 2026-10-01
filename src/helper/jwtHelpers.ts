@@ -1,19 +1,12 @@
-import jwt, {
-  JwtPayload,
-  Secret,
-  SignOptions,
-  VerifyOptions,
-} from "jsonwebtoken";
+import jwt, { JwtPayload, Secret, VerifyOptions } from "jsonwebtoken";
 import { env } from "../app/config/env";
 
 const createToken = (
-  payload: object,
+  payload: Record<string, unknown>,
   secret: Secret,
-  expireTime: SignOptions["expiresIn"],
+  expireTime: number,
 ): string => {
-  const cleanPayload = {
-    ...(payload as Record<string, unknown>),
-  };
+  const cleanPayload = { ...payload };
 
   delete cleanPayload.exp;
   delete cleanPayload.iat;
@@ -25,13 +18,13 @@ const createToken = (
 };
 
 const createResetToken = (
-  payload: object,
+  payload: Record<string, unknown>,
   secret: Secret,
-  expireTime: string | number,
+  expireTime: number,
 ): string => {
   return jwt.sign(payload, secret, {
     expiresIn: expireTime,
-  } as SignOptions);
+  });
 };
 
 const verifyToken = (

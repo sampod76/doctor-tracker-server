@@ -3,7 +3,7 @@ import { userRoutes } from "../modules/user/user.module";
 import { adminRoutes } from "../modules/admin/admin.module";
 import { doctorRoutes } from "../modules/doctor/doctor.module";
 import { patientRoutes } from "../modules/patient/patient.module";
-import { authenticationRoutes } from "../modules/authentication/module.authentication";
+import { authenticationRoutes } from "../modules/authentication/authentication.module";
 
 const router = express.Router();
 
