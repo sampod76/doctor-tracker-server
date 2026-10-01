@@ -3,8 +3,8 @@ import { AdminController } from "./admin.controller";
 import {
   createAdminZodSchema,
   getAdminZodSchema,
-  updateAdminZodSchema,
   listAdminsZodSchema,
+  updateAdminZodSchema,
 } from "./admin.validation";
 export class AdminRoutes extends AbstractRoute {
   constructor(private readonly controller: AdminController) {
@@ -15,7 +15,7 @@ export class AdminRoutes extends AbstractRoute {
     this.router
       .route("/")
       .post(
-        // this.authMiddleware(this.USER_ROLE.ADMIN),
+        this.authMiddleware(this.USER_ROLE.ADMIN),
         this.validateRequestZod(createAdminZodSchema),
         this.controller.create,
       )

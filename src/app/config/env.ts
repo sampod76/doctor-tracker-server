@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import { z } from "zod";
+import { isIP } from "node:net";
 
 dotenv.config();
 
@@ -11,6 +12,14 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(5000),
 
   MONGODB_URI: z.string().min(1, "MONGODB_URI is required"),
+  MONGODB_DNS_SERVERS: z
+    .string()
+    .transform(value => value.split(",").map(server => server.trim()))
+    .refine(
+      servers => servers.every(server => isIP(server) !== 0),
+      "MONGODB_DNS_SERVERS must contain comma-separated IP addresses",
+    )
+    .optional(),
 
   JWT_SECRET: z.string().min(16, "JWT_SECRET must be at least 16 characters"),
   JWT_EXPIRES_IN: z.string().default("7d"),

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import dns from "node:dns";
 import { logger } from "../share/logger";
 import { env } from "./env";
 
@@ -20,6 +21,10 @@ mongoose.connection.on("reconnected", () => {
 });
 
 export async function connectDatabase(): Promise<typeof mongoose> {
+  // Optional override for environments where Node discovers an unusable DNS resolver.
+  if (env.MONGODB_DNS_SERVERS) {
+    dns.setServers(env.MONGODB_DNS_SERVERS);
+  }
   mongoose.set("strictQuery", true);
 
   await mongoose.connect(env.MONGODB_URI, {
