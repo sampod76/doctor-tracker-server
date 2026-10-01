@@ -12,14 +12,14 @@ const defaultAdmin = {
   name: "Samantha Reed",
   email: "admin@doctortracker.com",
   password: "Admin@12345",
-  phoneNumber: "01711000000",
+  phone: "01711000000",
 };
 
 const defaultDoctor = {
   name: "Dr. Emily Carter",
   email: "emily.carter@doctortracker.com",
   password: "Doctor@12345",
-  phoneNumber: "01812000000",
+  phone: "01812000000",
   hospital: "Green Valley Medical Center",
   specialization: SPECIALIZATION.GENERAL_MEDICINE,
 };
@@ -67,7 +67,7 @@ export async function seedDatabase(): Promise<void> {
             {
               userId: adminUser._id,
               name: defaultAdmin.name,
-              phoneNumber: defaultAdmin.phoneNumber,
+              phone: defaultAdmin.phone,
             },
           ],
           { session },
@@ -117,7 +117,7 @@ export async function seedDatabase(): Promise<void> {
               createdBy: adminUser._id,
               name: defaultDoctor.name,
               email: doctorUser.email,
-              phone: defaultDoctor.phoneNumber,
+              phone: defaultDoctor.phone,
               hospital: defaultDoctor.hospital,
               specialization: defaultDoctor.specialization,
             },

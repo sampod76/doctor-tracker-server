@@ -2,7 +2,7 @@ import { Document, model, Schema, Types } from "mongoose";
 export interface IAdminDocument extends Document {
   userId: Types.ObjectId;
   name: string;
-  phoneNumber: string;
+  phone: string;
   isDeleted: boolean;
   deletedAt?: Date | null;
   createdAt?: Date;
@@ -17,7 +17,7 @@ const adminSchema = new Schema<IAdminDocument>(
       unique: true,
     },
     name: { type: String, required: true, trim: true, maxlength: 100 },
-    phoneNumber: { type: String, required: true, trim: true, maxlength: 20 },
+    phone: { type: String, required: true, trim: true, maxlength: 20 },
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date, default: null },
   },

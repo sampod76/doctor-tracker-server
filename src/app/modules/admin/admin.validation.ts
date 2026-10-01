@@ -1,11 +1,11 @@
 import { z } from "zod";
+import { objectId } from "../../../global/schema/global.schema";
 import { createAccountZodSchema } from "../user/user.validation";
-const objectId = z.string().regex(/^[a-f0-9]{24}$/i, "Invalid ObjectId");
 
 const body = z
   .object({
     name: z.string().trim().min(2).max(100),
-    phoneNumber: z.string().trim().min(6).max(20),
+    phone: z.string().trim().min(6).max(20),
   })
   .strict();
 export const createAdminZodSchema = z.object({

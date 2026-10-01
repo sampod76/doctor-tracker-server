@@ -1,10 +1,6 @@
 import { AbstractRoute } from "../../core/abstract/AbstractRoute";
 import { AuthenticationController } from "./authentication.controller";
-import {
-  changePasswordZodSchema,
-  loginZodSchema,
-  refreshTokenZodSchema,
-} from "./authentication.validation";
+import { AuthValidation } from "./authentication.validation";
 
 export class AuthenticationRoutes extends AbstractRoute {
   constructor(private readonly controller: AuthenticationController) {
@@ -15,13 +11,13 @@ export class AuthenticationRoutes extends AbstractRoute {
   protected init(): void {
     this.router.post(
       "/login",
-      this.validateRequestZod(loginZodSchema),
+      this.validateRequestZod(AuthValidation.loginZodSchema),
       this.controller.login,
     );
 
     this.router.post(
       "/refresh-token",
-      this.validateRequestZod(refreshTokenZodSchema),
+      this.validateRequestZod(AuthValidation.refreshTokenZodSchema),
       this.controller.refresh,
     );
 
@@ -30,7 +26,7 @@ export class AuthenticationRoutes extends AbstractRoute {
     this.router.post(
       "/change-password",
       this.authMiddleware(),
-      this.validateRequestZod(changePasswordZodSchema),
+      this.validateRequestZod(AuthValidation.changePasswordZodSchema),
       this.controller.changePassword,
     );
   }

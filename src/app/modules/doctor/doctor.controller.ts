@@ -16,7 +16,7 @@ export class DoctorController extends AbstractController {
       data,
     });
   });
-  list = this.catchAsync(async (req: Request, res: Response) => {
+  findAll = this.catchAsync(async (req: Request, res: Response) => {
     const query = req.query as unknown as ListDoctorsQuery;
     const result = await this.service.findAll(query, req.user as IUserRef);
     this.sendResponse(res, {
@@ -26,10 +26,7 @@ export class DoctorController extends AbstractController {
     });
   });
   getById = this.catchAsync(async (req: Request, res: Response) => {
-    const data = await this.service.findOne(
-      req.params.id,
-      req.user as IUserRef,
-    );
+    const data = await this.service.findOne(req.params.id);
     this.sendResponse(res, { statusCode: httpStatus.OK, data });
   });
   update = this.catchAsync(async (req: Request, res: Response) => {
@@ -55,17 +52,7 @@ export class DoctorController extends AbstractController {
       data,
     });
   });
-  restore = this.catchAsync(async (req: Request, res: Response) => {
-    const data = await this.service.restore(
-      req.params.id,
-      req.user as IUserRef,
-    );
-    this.sendResponse(res, {
-      statusCode: httpStatus.OK,
-      message: "Doctor restored",
-      data,
-    });
-  });
+
   statistics = this.catchAsync(async (req: Request, res: Response) => {
     const data = await this.service.statistics();
     this.sendResponse(res, { statusCode: httpStatus.OK, data });

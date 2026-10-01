@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 concurrency:
-  group: naria-boilerplate-api:${{ github.ref }}
+  group: doctorTracker-boilerplate-api:${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -33,6 +33,6 @@ jobs:
           set -Eeuo pipefail
           export DOCKER_BUILDKIT=1
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          IMAGE=ghcr.io/$OWNER/naria_boilerplate_api:latest
+          IMAGE=ghcr.io/$OWNER/doctorTracker_boilerplate_api:latest
           docker build -t "$IMAGE" .
           docker push "$IMAGE"

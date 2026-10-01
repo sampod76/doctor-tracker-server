@@ -1,15 +1,15 @@
 import "colors";
 import http from "http";
 import app from "./app";
-import { env } from "./app/config/env";
 import { connectDatabase, disconnectDatabase } from "./app/config/database";
-import { logger } from "./app/share/logger";
+import { env } from "./app/config/env";
 import {
   registerHttpServer,
   registerShutdownSteps,
   registerSignalHandlers,
   requestShutdown,
 } from "./app/share/lifecycle";
+import { logger } from "./app/share/logger";
 
 let server: http.Server | undefined;
 
@@ -30,7 +30,7 @@ async function main(): Promise<void> {
 
     server = http.createServer(app).listen(env.PORT, () => {
       logger.info(
-        `🚀 HTTP Server running on port ${env.PORT}`.blue.underline.bold,
+        `HTTP Server running on port ${env.PORT}`.blue.underline.bold,
       );
     });
 
@@ -38,9 +38,9 @@ async function main(): Promise<void> {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (env.NODE_ENV === "production") {
-      logger.error(`❌ Failed to start app: ${message}`);
+      logger.error(`Failed to start app: ${message}`);
     } else {
-      console.log(`❌ Failed to start app: ${message}`);
+      console.log(`Failed to start app: ${message}`);
     }
     await requestShutdown("startup failure", 1);
   }

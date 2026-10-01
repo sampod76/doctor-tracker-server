@@ -3,8 +3,8 @@ import { DoctorController } from "./doctor.controller";
 import {
   createDoctorZodSchema,
   getDoctorZodSchema,
-  updateDoctorZodSchema,
   listDoctorsZodSchema,
+  updateDoctorZodSchema,
 } from "./doctor.validation";
 export class DoctorRoutes extends AbstractRoute {
   constructor(private readonly controller: DoctorController) {
@@ -22,19 +22,14 @@ export class DoctorRoutes extends AbstractRoute {
       .get(
         this.authMiddleware(this.USER_ROLE.ADMIN),
         this.validateRequestZod(listDoctorsZodSchema),
-        this.controller.list,
+        this.controller.findAll,
       );
     this.router.get(
       "/statistics",
       this.authMiddleware(this.USER_ROLE.ADMIN),
       this.controller.statistics,
     );
-    this.router.patch(
-      "/:id/restore",
-      this.authMiddleware(this.USER_ROLE.ADMIN),
-      this.validateRequestZod(getDoctorZodSchema),
-      this.controller.restore,
-    );
+
     this.router
       .route("/:id")
       .get(

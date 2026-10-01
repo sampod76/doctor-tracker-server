@@ -1,9 +1,9 @@
 import express from "express";
-import { userRoutes } from "../modules/user/user.module";
-import { adminRoutes } from "../modules/admin/admin.module";
-import { doctorRoutes } from "../modules/doctor/doctor.module";
-import { patientRoutes } from "../modules/patient/patient.module";
-import { authenticationRoutes } from "../modules/authentication/authentication.module";
+import { adminRoutes } from "../modules/admin/admin.container";
+import { authenticationRoutes } from "../modules/authentication/authentication.container";
+import { doctorRoutes } from "../modules/doctor/doctor.container";
+import { patientRoutes } from "../modules/patient/patient.container";
+import { userRoutes } from "../modules/user/user.container";
 
 const router = express.Router();
 

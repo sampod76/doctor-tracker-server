@@ -12,6 +12,7 @@ import { AbstractService } from "../../core/abstract/AbstractService";
 import { ApiError } from "../../errors/ApiError";
 
 import { USER_ROLE } from "../../../global/enums/users";
+import { authCache } from "../../../helper/authCache";
 import { IUserDocument, User } from "./user.model";
 import {
   CreateAccountDto,
@@ -164,6 +165,9 @@ export class UserService extends AbstractService {
     if (!updated) {
       throw new ApiError(httpStatus.NOT_FOUND, "User not found");
     }
+    // Drop any cached auth-user payload so role/email/isActive changes are
+    // reflected on the next request instead of waiting for TTL expiry.
+    authCache.invalidateAuthUserCache(updated._id.toString());
     return updated;
   }
 
@@ -172,6 +176,9 @@ export class UserService extends AbstractService {
     user.isDeleted = true;
     user.deletedAt = new Date();
     await user.save();
+    // Soft-deleted users must no longer authenticate; clear their cached
+    // auth-user entry so the middleware immediately re-evaluates them.
+    authCache.invalidateAuthUserCache(user._id.toString());
     return user;
   }
 
@@ -186,6 +193,8 @@ export class UserService extends AbstractService {
     user.isDeleted = false;
     user.deletedAt = null;
     await user.save();
+    // The restored user may now authenticate again; clear any stale cache.
+    authCache.invalidateAuthUserCache(user._id.toString());
     return user;
   }
 

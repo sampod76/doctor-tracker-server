@@ -3,9 +3,9 @@ import { PatientController } from "./patient.controller";
 import {
   createPatientZodSchema,
   getPatientZodSchema,
-  updatePatientZodSchema,
   listPatientsZodSchema,
   patientStatisticsZodSchema,
+  updatePatientZodSchema,
 } from "./patient.validation";
 export class PatientRoutes extends AbstractRoute {
   constructor(private readonly controller: PatientController) {
@@ -31,12 +31,7 @@ export class PatientRoutes extends AbstractRoute {
       this.validateRequestZod(patientStatisticsZodSchema),
       this.controller.statistics,
     );
-    this.router.patch(
-      "/:id/restore",
-      this.authMiddleware(this.USER_ROLE.ADMIN),
-      this.validateRequestZod(getPatientZodSchema),
-      this.controller.restore,
-    );
+
     this.router
       .route("/:id")
       .get(

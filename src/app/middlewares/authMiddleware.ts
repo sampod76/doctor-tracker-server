@@ -1,9 +1,18 @@
 import type { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import { USER_ROLE } from "../../global/enums/users";
+import {
+  type CachedAuthUser,
+  authCache,
+} from "../../helper/authCache";
 import { accessTokenSecret, jwtHelpers } from "../../helper/jwtHelpers";
 import { ApiError } from "../errors/ApiError";
 import { User } from "../modules/user/user.model";
+
+interface AuthTokenPayload {
+  userId: string;
+  role: USER_ROLE;
+}
 
 const UNAUTHORIZED_MESSAGE = "Unauthorized access";
 const FORBIDDEN_MESSAGE = "Forbidden access";
@@ -28,9 +37,12 @@ const authMiddleware =
     try {
       const token = extractBearerToken(req.headers.authorization);
 
-      let payload: { userId: string; role: USER_ROLE };
+      let payload: AuthTokenPayload;
       try {
-        payload = jwtHelpers.verifyToken(token, accessTokenSecret) as never;
+        payload = jwtHelpers.verifyToken(
+          token,
+          accessTokenSecret,
+        ) as AuthTokenPayload;
       } catch (error) {
         if (error instanceof Error && error.name === "TokenExpiredError") {
           throw new ApiError(httpStatus.UNAUTHORIZED, "Token expired");
@@ -49,14 +61,32 @@ const authMiddleware =
         throw new ApiError(httpStatus.FORBIDDEN, FORBIDDEN_MESSAGE);
       }
 
-      // Reject silently deleted or removed users.
-      const user = await User.findOne({
-        _id: payload.userId,
-        isDeleted: false,
-      })
-        .select("email role isActive")
-        .lean()
-        .exec();
+      // Prefer the cached auth-user payload to avoid hitting MongoDB on every
+      // authenticated request. On a miss we fall back to the database and
+      // then warm the cache for subsequent requests.
+      let user: CachedAuthUser | null =
+        authCache.getCachedAuthUser(payload.userId) ?? null;
+
+      if (!user) {
+        // Reject silently deleted or removed users.
+        const dbUser = await User.findOne({
+          _id: payload.userId,
+          isDeleted: false,
+        })
+          .select("email role isActive")
+          .lean()
+          .exec();
+
+        if (dbUser) {
+          user = {
+            _id: dbUser._id.toString(),
+            email: dbUser.email,
+            role: dbUser.role,
+            isActive: dbUser.isActive,
+          };
+          authCache.setCachedAuthUser(user);
+        }
+      }
 
       if (!user) {
         throw new ApiError(httpStatus.UNAUTHORIZED, "User no longer exists");
@@ -74,7 +104,7 @@ const authMiddleware =
       }
 
       req.user = {
-        userId: user._id.toString(),
+        userId: user._id,
         email: user.email,
         role: user.role,
       };

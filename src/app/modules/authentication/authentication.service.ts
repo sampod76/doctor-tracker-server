@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
-import type { JwtPayload } from "jsonwebtoken";
 import httpStatus from "http-status";
+import type { JwtPayload } from "jsonwebtoken";
 import { PipelineStage, Types } from "mongoose";
 import { USER_ROLE } from "../../../global/enums/users";
 import {
@@ -27,7 +27,7 @@ export type AuthResult = AuthTokens & {
   user: IUserRef;
 };
 
-const issueTokens = (payload: Record<string, unknown>): AuthTokens => {
+const issueJwtTokens = (payload: Record<string, unknown>): AuthTokens => {
   const accessToken = jwtHelpers.createToken(
     payload,
     accessTokenSecret,
@@ -75,7 +75,7 @@ export class AuthenticationService extends AbstractService {
     };
 
     return {
-      ...issueTokens(payload),
+      ...issueJwtTokens(payload),
       user: {
         userId: user._id.toString(),
         email: user.email,
@@ -111,7 +111,7 @@ export class AuthenticationService extends AbstractService {
     };
 
     return {
-      ...issueTokens(payload),
+      ...issueJwtTokens(payload),
       user: {
         userId: user._id.toString(),
         email: user.email,

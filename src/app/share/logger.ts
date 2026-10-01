@@ -11,7 +11,10 @@ const myFormat = printf(({ level, message, label, timestamp, stack }) => {
 });
 
 const baseFormat = combine(
-  label({ label: env.NODE_ENV === "production" ? "naria-app" : "naria-dev" }),
+  label({
+    label:
+      env.NODE_ENV === "production" ? "doctorTracker-app" : "doctorTracker-dev",
+  }),
   timestamp(),
   errors({ stack: true }),
   myFormat,
@@ -28,7 +31,7 @@ const logger = createLogger({
         "logger",
         "winston",
         "successes",
-        "naria-%DATE%-success.log",
+        "doctorTracker-%DATE%-success.log",
       ),
       datePattern: "YYYY-MM-DD-HH",
       zippedArchive: true,
@@ -49,7 +52,7 @@ const errorLogger = createLogger({
         "logger",
         "winston",
         "errors",
-        "naria-%DATE%-error.log",
+        "doctorTracker-%DATE%-error.log",
       ),
       datePattern: "YYYY-MM-DD-HH",
       zippedArchive: true,

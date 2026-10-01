@@ -25,12 +25,6 @@ export class AdminRoutes extends AbstractRoute {
         this.controller.list,
       );
 
-    this.router.patch(
-      "/:id/restore",
-      this.authMiddleware(this.USER_ROLE.ADMIN),
-      this.validateRequestZod(getAdminZodSchema),
-      this.controller.restore,
-    );
     this.router
       .route("/:id")
       .get(

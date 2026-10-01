@@ -1,8 +1,7 @@
 import { z } from "zod";
 
 import { USER_ROLE } from "../../../global/enums/users";
-
-const objectId = z.string().regex(/^[a-f0-9]{24}$/i, "Invalid ObjectId");
+import { objectId } from "../../../global/schema/global.schema";
 
 export const createAccountZodSchema = z
   .object({

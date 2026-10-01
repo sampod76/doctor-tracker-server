@@ -17,7 +17,7 @@ jobs:
             - name: 🧹 Delete untagged images (safe mode)
               uses: actions/delete-package-versions@v5
               with:
-                  package-name: naria_holidays_server
+                  package-name: doctorTracker_holidays_server
                   package-type: container
                   delete-only-untagged-versions: true
                   min-versions-to-keep: 5

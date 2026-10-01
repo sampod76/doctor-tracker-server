@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { SPECIALIZATION } from "./doctor.constant";
+import { objectId } from "../../../global/schema/global.schema";
 import { createAccountZodSchema } from "../user/user.validation";
-const objectId = z.string().regex(/^[a-f0-9]{24}$/i, "Invalid ObjectId");
+import { SPECIALIZATION } from "./doctor.constant";
 
 const body = z
   .object({
@@ -24,7 +24,7 @@ export const updateDoctorZodSchema = z.object({
     .partial()
     .refine(
       value => Object.keys(value).length > 0,
-      "At least one field is required",
+      "Minium one field is required",
     ),
 });
 export const listDoctorsZodSchema = z.object({

@@ -14,7 +14,7 @@ Admin and Doctor endpoints require the ADMIN role. Patient CRUD and statistics a
 
 Create a Doctor or Admin account and profile in one request to `POST /doctors` or `POST /admins`. Each service uses `UserService.createAccount()` for email uniqueness, password hashing, and account creation, then writes the profile in the same MongoDB transaction. Failed profile creation rolls back the account. MongoDB must run as a replica set or sharded deployment; standalone MongoDB does not support this workflow. The bundled `docker-compose.yml` currently starts standalone MongoDB and needs replica-set configuration or a transaction-capable external database. `POST /users` is no longer exposed. The initial Admin must be provisioned through trusted internal/bootstrap code using `createAccount()`; subsequent Admins can be created through the authenticated Admin endpoint.
 
-Admin creation requires `email`, `password`, `name`, and `phoneNumber`. Doctor creation requires `email`, `password`, `name`, `specialization`, `hospital`, and `phone`; `isActive` is optional. Email is normalized and reserved even for soft-deleted accounts. Passwords follow the existing 8–128 character constraints and are stored only as hashes on User. Clients cannot supply `userId`, `createdBy`, or `role`. The backend forces ADMIN/DOCTOR roles and derives profile `userId` from the newly created account. Doctor `email` comes from that account, and `createdBy` comes from the authenticated admin. Neither `userId`, `createdBy`, nor Doctor `email` can be changed by profile updates. Authentication account changes remain in the User API; the Doctor email is a snapshot from profile creation. Profiles retain their unique User references; restore an existing deleted profile rather than recreating its account.
+Admin creation requires `email`, `password`, `name`, and `phone`. Doctor creation requires `email`, `password`, `name`, `specialization`, `hospital`, and `phone`; `isActive` is optional. Email is normalized and reserved even for soft-deleted accounts. Passwords follow the existing 8–128 character constraints and are stored only as hashes on User. Clients cannot supply `userId`, `createdBy`, or `role`. The backend forces ADMIN/DOCTOR roles and derives profile `userId` from the newly created account. Doctor `email` comes from that account, and `createdBy` comes from the authenticated admin. Neither `userId`, `createdBy`, nor Doctor `email` can be changed by profile updates. Authentication account changes remain in the User API; the Doctor email is a snapshot from profile creation. Profiles retain their unique User references; restore an existing deleted profile rather than recreating its account.
 
 Example `POST /doctors` body:
 
@@ -29,7 +29,7 @@ Example `POST /doctors` body:
 }
 ```
 
-Patient creation requires `doctorId`, `name`, `phoneNumber`, `age`, `gender`, and `patientComplaint`. Optional fields are `address`, `doctorAdvice`, `notes`, `treatmentStatus`, `lastVisitAt`, and `followUpDate`. Treatment status defaults to ACTIVE. Dates must be full ISO 8601 timestamps with a timezone, such as `2026-10-01T09:00:00+06:00`; nullable date fields can be cleared with `null` on update.
+Patient creation requires `doctorId`, `name`, `phone`, `age`, `gender`, and `patientComplaint`. Optional fields are `address`, `doctorAdvice`, `notes`, `treatmentStatus`, `lastVisitAt`, and `followUpDate`. Treatment status defaults to ACTIVE. Dates must be full ISO 8601 timestamps with a timezone, such as `2026-10-01T09:00:00+06:00`; nullable date fields can be cleared with `null` on update.
 
 Updates are partial and reject unknown/protected fields and empty bodies. Deletion sets `isDeleted` and `deletedAt`, retaining the document and its relationships. Profile deletion does not delete or deactivate the separate authentication account. Deleted or inactive Doctor profiles cannot access patient endpoints. Restoring a profile requires an active matching account; restoring a patient requires an active assigned Doctor profile.
 
@@ -37,11 +37,11 @@ Updates are partial and reject unknown/protected fields and empty bodies. Deleti
 
 All lists support `page`, `limit` (maximum 100), `sortBy`, `sortOrder` (`asc` or `desc`), and `searchTerm`. Defaults are page 1, limit 10, and createdAt descending. Metadata is `{ page, limit, total }`. Sort fields are allowlisted; search is escaped literal text. Normal lists, details, and statistics exclude deleted records.
 
-| Resource | Search fields                       | Filters                                                      | Additional sort fields               |
-| -------- | ----------------------------------- | ------------------------------------------------------------ | ------------------------------------ |
-| Admin    | name, phoneNumber                   | —                                                            | name                                 |
-| Doctor   | name, email, phone, hospital        | specialization, hospital, isActive                           | name, specialization, hospital       |
-| Patient  | name, phoneNumber, patientComplaint | doctorId, gender, treatmentStatus, followUpDate, lastVisitAt | name, followUpDate, lastVisitAt, age |
+| Resource | Search fields                 | Filters                                                      | Additional sort fields               |
+| -------- | ----------------------------- | ------------------------------------------------------------ | ------------------------------------ |
+| Admin    | name, phone                   | —                                                            | name                                 |
+| Doctor   | name, email, phone, hospital  | specialization, hospital, isActive                           | name, specialization, hospital       |
+| Patient  | name, phone, patientComplaint | doctorId, gender, treatmentStatus, followUpDate, lastVisitAt | name, followUpDate, lastVisitAt, age |
 
 Every resource also supports sorting by createdAt and updatedAt. `isActive` query values must be the strings `true` or `false`. Date filters match an exact timestamp. To list a doctor's patients, use `GET /patients?doctorId=<Doctor profile ID>`.
 

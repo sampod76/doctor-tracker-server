@@ -13,7 +13,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: naria_boilerplate_api
+    container_name: doctorTracker_boilerplate_api
     profiles: ["app"]
     env_file:
       - .env
@@ -42,7 +42,7 @@ services:
       start_period: 10s
       retries: 3
     restart: unless-stopped
-    networks: [naria-network]
+    networks: [doctorTracker-network]
     logging:
       driver: json-file
       options:
@@ -51,7 +51,7 @@ services:
 
   mongodb:
     image: mongo:7
-    container_name: naria_boilerplate_mongo
+    container_name: doctorTracker_boilerplate_mongo
     profiles: ["db", "app"]
     environment:
       MONGO_INITDB_DATABASE: app
@@ -60,15 +60,16 @@ services:
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 })"]
+      test:
+        ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 })"]
       interval: 10s
       timeout: 5s
       retries: 10
     restart: unless-stopped
-    networks: [naria-network]
+    networks: [doctorTracker-network]
 
 networks:
-  naria-network:
+  doctorTracker-network:
     driver: bridge
 
 volumes:

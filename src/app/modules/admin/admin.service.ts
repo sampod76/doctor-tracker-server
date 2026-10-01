@@ -1,16 +1,15 @@
 import httpStatus from "http-status";
 import { FilterQuery, Types } from "mongoose";
+import { USER_ROLE } from "../../../global/enums/users";
 import { AbstractService } from "../../core/abstract/AbstractService";
 import { ApiError } from "../../errors/ApiError";
 import { IUserRef } from "../../interfaces/user.ref";
-import { USER_ROLE } from "../../../global/enums/users";
-import { User } from "../user/user.model";
 import { UserService } from "../user/user.service";
 import { Admin, IAdminDocument } from "./admin.model";
 import {
   CreateAdminDto,
-  UpdateAdminDto,
   ListAdminsQuery,
+  UpdateAdminDto,
 } from "./admin.validation";
 const escapeRegex = (input: string): string =>
   input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -40,7 +39,7 @@ export class AdminService extends AbstractService {
             {
               userId: user._id,
               name: payload.name,
-              phoneNumber: payload.phoneNumber,
+              phone: payload.phone,
             },
           ],
           { session },
@@ -68,7 +67,7 @@ export class AdminService extends AbstractService {
     const filter: FilterQuery<IAdminDocument> = { isDeleted: false };
 
     if (query.searchTerm)
-      filter.$or = ["name", "phoneNumber"].map(field => ({
+      filter.$or = ["name", "phone"].map(field => ({
         [field]: { $regex: escapeRegex(query.searchTerm!), $options: "i" },
       }));
     return filter;
@@ -76,16 +75,16 @@ export class AdminService extends AbstractService {
   async findAll(query: ListAdminsQuery, authUser: IUserRef) {
     const { page, limit, skip, sortBy, sortOrder } =
       this.calculatePagination(query);
-    const filter = this.buildFilter(query);
+    const whereConditions = this.buildFilter(query);
 
     const sort = this.parseSort(`${sortBy}:${sortOrder}`);
     const [data, total] = await Promise.all([
-      Admin.find(filter)
+      Admin.find(whereConditions)
         .sort({ ...sort, _id: 1 })
         .skip(skip)
         .limit(limit)
         .lean(),
-      Admin.countDocuments(filter),
+      Admin.countDocuments(whereConditions),
     ]);
     return { data, meta: { page, limit, total } };
   }
@@ -110,31 +109,6 @@ export class AdminService extends AbstractService {
       { new: true, runValidators: true },
     );
     if (!result) throw new ApiError(httpStatus.NOT_FOUND, "Admin not found");
-    return result;
-  }
-  async restore(id: string, authUser: IUserRef) {
-    this.validateId(id);
-    const existing = await Admin.findOne({ _id: id, isDeleted: true })
-      .select("userId")
-      .lean();
-    if (!existing)
-      throw new ApiError(httpStatus.NOT_FOUND, "Deleted admin not found");
-    if (
-      !(await User.exists({
-        _id: existing.userId,
-        role: USER_ROLE.ADMIN,
-        isDeleted: false,
-        isActive: true,
-      }))
-    )
-      throw new ApiError(httpStatus.CONFLICT, "Active admin account required");
-    const result = await Admin.findOneAndUpdate(
-      { _id: id, isDeleted: true },
-      { $set: { isDeleted: false, deletedAt: null } },
-      { new: true, runValidators: true },
-    );
-    if (!result)
-      throw new ApiError(httpStatus.NOT_FOUND, "Deleted admin not found");
     return result;
   }
 }

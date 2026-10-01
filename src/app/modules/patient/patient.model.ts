@@ -1,9 +1,9 @@
-import { Document, Schema, model, Types } from "mongoose";
+import { Document, model, Schema, Types } from "mongoose";
 import { ENUM_GENDER } from "../../../global/enums/users";
 import { TREATMENT_STATUS } from "./patient.constant";
 export interface IPatientDocument extends Document {
   name: string;
-  phoneNumber: string;
+  phone: string;
   doctorId: Types.ObjectId;
   age: number;
   gender: ENUM_GENDER;
@@ -22,14 +22,13 @@ export interface IPatientDocument extends Document {
 const patientSchema = new Schema<IPatientDocument>(
   {
     name: { type: String, required: true, trim: true, maxlength: 100 },
-    phoneNumber: { type: String, required: true, trim: true, maxlength: 20 },
+    phone: { type: String, required: true, trim: true, maxlength: 20 },
     doctorId: { type: Schema.Types.ObjectId, ref: "Doctor", required: true },
     age: {
       type: Number,
       required: true,
       min: 0,
       max: 150,
-      validate: Number.isInteger,
     },
     gender: { type: String, enum: Object.values(ENUM_GENDER), required: true },
     address: { type: String, trim: true, maxlength: 500 },

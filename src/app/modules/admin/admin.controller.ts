@@ -55,15 +55,4 @@ export class AdminController extends AbstractController {
       data,
     });
   });
-  restore = this.catchAsync(async (req: Request, res: Response) => {
-    const data = await this.service.restore(
-      req.params.id,
-      req.user as IUserRef,
-    );
-    this.sendResponse(res, {
-      statusCode: httpStatus.OK,
-      message: "Admin restored",
-      data,
-    });
-  });
 }

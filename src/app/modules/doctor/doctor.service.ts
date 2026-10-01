@@ -1,10 +1,9 @@
 import httpStatus from "http-status";
-import { Document, FilterQuery, PipelineStage, Types } from "mongoose";
+import { FilterQuery, PipelineStage, Types } from "mongoose";
 import { USER_ROLE } from "../../../global/enums/users";
 import { AbstractService } from "../../core/abstract/AbstractService";
 import { ApiError } from "../../errors/ApiError";
 import { IUserRef } from "../../interfaces/user.ref";
-import { User } from "../user/user.model";
 import { UserService } from "../user/user.service";
 import { DOCTOR_SEARCHABLE_FIELDS, SPECIALIZATION } from "./doctor.constant";
 import { Doctor, IDoctorDocument } from "./doctor.model";
@@ -90,43 +89,98 @@ export class DoctorService extends AbstractService {
       await session.endSession();
     }
   }
-  async findOne(id: string, authUser: IUserRef) {
+  async findOne(id: string) {
     this.validateId(id);
-    const filter = { _id: id, isDeleted: false };
-    const result = await Doctor.findOne(filter)
-      .populate({
-        path: "userId",
-        match: { isDeleted: false },
-        select: "email role isActive",
-      })
-      .populate({
-        path: "createdBy",
-        match: { isDeleted: false },
-        select: "email role",
-      })
-      .lean();
-    if (!result) throw new ApiError(httpStatus.NOT_FOUND, "Doctor not found");
+
+    const [result] = await Doctor.aggregate([
+      {
+        $match: {
+          _id: new Types.ObjectId(id),
+          isDeleted: false,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "createdBy",
+          foreignField: "_id",
+          as: "createdBy",
+        },
+      },
+      {
+        $unwind: {
+          path: "$createdBy",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          userId: 0,
+
+          "user.password": 0,
+          "user.isDeleted": 0,
+          "user.deletedAt": 0,
+          "user.createdAt": 0,
+          "user.updatedAt": 0,
+
+          "createdBy.password": 0,
+          "createdBy.isDeleted": 0,
+          "createdBy.deletedAt": 0,
+          "createdBy.createdAt": 0,
+          "createdBy.updatedAt": 0,
+        },
+      },
+    ]);
+
+    if (!result) {
+      throw new ApiError(httpStatus.NOT_FOUND, "Doctor not found");
+    }
+
     return result;
   }
   private buildFilter(query: ListDoctorsQuery): FilterQuery<IDoctorDocument> {
-    const { searchTerm, ...filtersData } = query;
-    const andConditions: FilterQuery<IDoctorDocument>[] = [
-      { isDeleted: false },
-    ];
+    const { searchTerm, specialization, hospital, isActive } = query;
+
+    const filter: FilterQuery<IDoctorDocument> = {
+      isDeleted: false,
+    };
+
     if (searchTerm) {
-      andConditions.push({
-        $or: DOCTOR_SEARCHABLE_FIELDS.map(field => ({
-          [field]: { $regex: escapeRegex(searchTerm), $options: "i" },
-        })),
-      });
+      filter.$or = DOCTOR_SEARCHABLE_FIELDS.map(field => ({
+        [field]: {
+          $regex: escapeRegex(searchTerm),
+          $options: "i",
+        },
+      }));
     }
-    if (filtersData.specialization !== undefined)
-      andConditions.push({ specialization: filtersData.specialization });
-    if (filtersData.hospital !== undefined)
-      andConditions.push({ hospital: filtersData.hospital });
-    if (filtersData.isActive !== undefined)
-      andConditions.push({ isActive: filtersData.isActive });
-    return andConditions.length > 0 ? { $and: andConditions } : {};
+
+    if (specialization !== undefined) {
+      filter.specialization = specialization;
+    }
+
+    if (hospital !== undefined) {
+      filter.hospital = hospital;
+    }
+
+    if (isActive !== undefined) {
+      filter.isActive = isActive;
+    }
+
+    return filter;
   }
   async findAll(query: ListDoctorsQuery, authUser: IUserRef) {
     const { page, limit, skip, sortBy, sortOrder } =
@@ -135,23 +189,57 @@ export class DoctorService extends AbstractService {
     const sortConditions = this.parseSort(`${sortBy}:${sortOrder}`);
     const pipeline: PipelineStage[] = [
       { $match: whereConditions },
+
       {
         $facet: {
           data: [
             { $sort: { ...sortConditions, _id: 1 } },
             { $skip: skip },
             { $limit: limit },
+
+            {
+              $lookup: {
+                from: "patients",
+                let: { doctorId: "$_id" },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $and: [
+                          { $eq: ["$doctorId", "$$doctorId"] },
+                          { $eq: ["$isDeleted", false] },
+                        ],
+                      },
+                    },
+                  },
+                  {
+                    $count: "total",
+                  },
+                ],
+                as: "patientStats",
+              },
+            },
+
+            {
+              $addFields: {
+                patientsCount: {
+                  $ifNull: [{ $arrayElemAt: ["$patientStats.total", 0] }, 0],
+                },
+              },
+            },
+
+            {
+              $project: {
+                patientStats: 0,
+              },
+            },
           ],
+
           countDocuments: [{ $count: "totalData" }],
         },
       },
     ];
-    const pipelineResult = await Doctor.aggregate<{
-      data: Array<
-        Omit<IDoctorDocument, keyof Document> & { _id: Types.ObjectId }
-      >;
-      countDocuments: { totalData: number }[];
-    }>(pipeline);
+    const pipelineResult = await Doctor.aggregate(pipeline);
     const data = pipelineResult[0]?.data ?? [];
     const total = pipelineResult[0]?.countDocuments[0]?.totalData ?? 0;
     return { data, meta: { page, limit, total } };
@@ -177,31 +265,6 @@ export class DoctorService extends AbstractService {
       { new: true, runValidators: true },
     );
     if (!result) throw new ApiError(httpStatus.NOT_FOUND, "Doctor not found");
-    return result;
-  }
-  async restore(id: string, authUser: IUserRef) {
-    this.validateId(id);
-    const existing = await Doctor.findOne({ _id: id, isDeleted: true })
-      .select("userId")
-      .lean();
-    if (!existing)
-      throw new ApiError(httpStatus.NOT_FOUND, "Deleted doctor not found");
-    if (
-      !(await User.exists({
-        _id: existing.userId,
-        role: USER_ROLE.DOCTOR,
-        isDeleted: false,
-        isActive: true,
-      }))
-    )
-      throw new ApiError(httpStatus.CONFLICT, "Active doctor account required");
-    const result = await Doctor.findOneAndUpdate(
-      { _id: id, isDeleted: true },
-      { $set: { isDeleted: false, deletedAt: null } },
-      { new: true, runValidators: true },
-    );
-    if (!result)
-      throw new ApiError(httpStatus.NOT_FOUND, "Deleted doctor not found");
     return result;
   }
 }
