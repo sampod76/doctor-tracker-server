@@ -1,12 +1,3 @@
-// src/app/share/lifecycle.ts
-//
-// Single-flight graceful shutdown coordinator. It owns:
-//   - SIGINT / SIGTERM handling
-//   - explicit shutdown requests from anywhere in the codebase
-//
-// The coordinator is idempotent: only the first call performs work; later
-// calls return the same promise. It is bounded by a configurable timeout.
-
 import http from "http";
 import { logger } from "./logger";
 
@@ -57,10 +48,6 @@ export function registerSignalHandlers(): void {
   });
 }
 
-/**
- * Request graceful shutdown. Idempotent; subsequent calls return the same
- * promise. `exitCode` is only honored on the first call.
- */
 export function requestShutdown(
   reason: string,
   exitCode: number = 0,

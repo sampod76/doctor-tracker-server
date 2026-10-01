@@ -19,9 +19,15 @@ export interface IPatientDocument extends Document {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
 const patientSchema = new Schema<IPatientDocument>(
   {
-    name: { type: String, required: true, trim: true, maxlength: 100 },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 100,
+    },
     phone: { type: String, required: true, trim: true, maxlength: 20 },
     doctorId: { type: Schema.Types.ObjectId, ref: "Doctor", required: true },
     age: {
@@ -52,7 +58,11 @@ const patientSchema = new Schema<IPatientDocument>(
   },
   { timestamps: true, versionKey: false },
 );
-patientSchema.index({ isDeleted: 1, createdAt: -1 });
+
 patientSchema.index({ doctorId: 1, isDeleted: 1, createdAt: -1 });
-patientSchema.index({ doctorId: 1, isDeleted: 1, followUpDate: 1 });
+patientSchema.index({
+  doctorId: 1,
+  isDeleted: 1,
+  phone: 1,
+});
 export const Patient = model<IPatientDocument>("Patient", patientSchema);

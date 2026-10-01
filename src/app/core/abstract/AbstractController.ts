@@ -13,18 +13,6 @@ type IApiResponse<T> = {
   data?: T;
 };
 
-/**
- * AbstractController — base class for HTTP controllers.
- *
- * Provides the three building blocks every controller needs:
- *   - `catchAsync`  : wraps an async handler so thrown errors flow to `next()`
- *   - `sendResponse`: writes the standard `{ success, statusCode, message, data }`
- *                     JSON envelope used everywhere in the boilerplate.
- *   - `pick`        : whitelists fields from `req.body` / `req.query`.
- *
- * Controllers receive their service via constructor injection (no singletons,
- * no global clients) so they are easy to test and stub.
- */
 export abstract class AbstractController {
   protected readonly PAGINATION_FIELDS = PAGINATION_FIELDS;
 

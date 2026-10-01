@@ -9,7 +9,7 @@ import { Request } from "express";
 import {
   IFileAfterUpload,
   IMulterUploadFile,
-} from "../app/interface/fileUpload";
+} from "../app/interfaces/fileUpload";
 
 const filePathFor = (mimetype: string): string => {
   if (mimetype.includes("pdf")) return "pdfs";

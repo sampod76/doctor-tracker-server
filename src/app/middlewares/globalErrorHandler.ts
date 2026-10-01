@@ -1,13 +1,13 @@
 import { ErrorRequestHandler } from "express";
 import httpStatus from "http-status";
-import { ZodError } from "zod";
 import mongoose from "mongoose";
+import { ZodError } from "zod";
 import { env } from "../config/env";
 import { ApiError } from "../errors/ApiError";
-import handleZodError from "../errors/handleZodError";
 import { handleMongooseError } from "../errors/handleMongooseError";
+import handleZodError from "../errors/handleZodError";
 import ServiceError from "../errors/ServiceError";
-import { IGenericErrorMessage } from "../interface/error";
+import { IGenericErrorMessage } from "../interfaces/error";
 import { errorLogger } from "../share/logger";
 
 const globalErrorHandler: ErrorRequestHandler = (error, req, res, _next) => {
@@ -57,9 +57,7 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, _next) => {
     statusCode = httpStatus.UNAUTHORIZED;
     message = "Unauthorized access";
     errorCode = "INVALID_TOKEN";
-  }
-
-  else if (error?.name === "TokenExpiredError") {
+  } else if (error?.name === "TokenExpiredError") {
     statusCode = httpStatus.UNAUTHORIZED;
     message = "Your session has expired. Please log in again.";
     errorCode = "TOKEN_EXPIRED";

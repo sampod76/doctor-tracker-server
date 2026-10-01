@@ -1,18 +1,15 @@
 import bcrypt from "bcryptjs";
 import httpStatus from "http-status";
-import {
-  ClientSession,
-  Document,
-  FilterQuery,
-  PipelineStage,
-  Types,
-} from "mongoose";
+import { ClientSession, FilterQuery, PipelineStage, Types } from "mongoose";
 import { env } from "../../config/env";
 import { AbstractService } from "../../core/abstract/AbstractService";
 import { ApiError } from "../../errors/ApiError";
 
 import { USER_ROLE } from "../../../global/enums/users";
 import { authCache } from "../../../helper/authCache";
+import { IPaginationOptions } from "../../interfaces/pagination";
+import { IUserRef } from "../../interfaces/user.ref";
+import { USER_SEARCHABLE_FIELDS } from "./user.constant";
 import { IUserDocument, User } from "./user.model";
 import {
   CreateAccountDto,
@@ -20,9 +17,6 @@ import {
   ListUsersQuery,
   UpdateUserDto,
 } from "./user.validation";
-import { IPaginationOptions } from "../../interface/pagination";
-import { IUserRef } from "../../interfaces/user.ref";
-import { USER_SEARCHABLE_FIELDS } from "./user.constant";
 
 const escapeRegex = (input: string): string =>
   input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

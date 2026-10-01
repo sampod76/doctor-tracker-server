@@ -1,4 +1,4 @@
-import { Document, Schema, model, Types } from "mongoose";
+import { Document, model, Schema, Types } from "mongoose";
 import { SPECIALIZATION } from "./doctor.constant";
 export interface IDoctorDocument extends Document {
   userId: Types.ObjectId;
@@ -46,4 +46,5 @@ const doctorSchema = new Schema<IDoctorDocument>(
 );
 doctorSchema.index({ isDeleted: 1, createdAt: -1 });
 doctorSchema.index({ specialization: 1, isDeleted: 1, isActive: 1 });
+
 export const Doctor = model<IDoctorDocument>("Doctor", doctorSchema);

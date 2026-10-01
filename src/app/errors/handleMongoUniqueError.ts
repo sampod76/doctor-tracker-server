@@ -1,4 +1,4 @@
-import { IGenericErrorMessage } from "../interface/error";
+import { IGenericErrorMessage } from "../interfaces/error";
 
 const handleMongoUniqueError = (error: any) => {
   // const errors: IGenericErrorMessage[] = [

@@ -1,6 +1,6 @@
 import { JwtPayload } from "jsonwebtoken";
-import { IUserRef } from "../interfaces/user.ref";
 import { IGenericErrorMessage } from "./error";
+import { IUserRef } from "./user.ref";
 
 export interface IJwtAuthUser extends JwtPayload {
   role: IUserRef["role"];

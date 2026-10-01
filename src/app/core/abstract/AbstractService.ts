@@ -1,4 +1,7 @@
-import { IPaginationOptions, IPaginationResult } from "../../interface/pagination";
+import {
+  IPaginationOptions,
+  IPaginationResult,
+} from "../../interfaces/pagination";
 
 export type { IPaginationResult };
 

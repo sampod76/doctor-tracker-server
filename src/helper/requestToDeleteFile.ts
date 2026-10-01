@@ -1,6 +1,6 @@
 import { Request } from "express";
 import ApiError from "../app/errors/ApiError";
-import { IMulterUploadFile } from "../app/interface/fileUpload";
+import { IMulterUploadFile } from "../app/interfaces/fileUpload";
 import { unlinkFile } from "../utils/unlinkFile";
 
 export const requestToDeleteFile = (req: Request) => {
