@@ -9,7 +9,9 @@ export class DashboardController extends AbstractController {
   }
 
   overview = this.catchAsync(async (req: Request, res: Response) => {
-    const data = await this.service.getOverview(req.query.followUpDate);
+    const data = await this.service.getOverview(
+      req.query.followUpDate as string,
+    );
     this.sendResponse(res, {
       statusCode: httpStatus.OK,
       message: "Dashboard overview retrieved successfully",

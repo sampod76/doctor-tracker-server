@@ -1,10 +1,3 @@
-/**
- * RequestToFileDecodeAddBodyHandle — Normalize uploaded files into a
- * `IFileAfterUpload` shape and inject them back into `req.body` keyed by
- * the original field name. The boilerplate only writes a server-side
- * reference (no external CDN); replace with a Cloudinary / S3 step if you
- * need off-host storage.
- */
 import { Request } from "express";
 import {
   IFileAfterUpload,

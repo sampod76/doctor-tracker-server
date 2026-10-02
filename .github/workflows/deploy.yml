@@ -1,11 +1,11 @@
-name: Deploy API image to GHCR
+name: Doctor Tracker Backend Deploy (GHCR + SSH)
 
 on:
   push:
     branches: [main]
 
 concurrency:
-  group: doctorTracker-boilerplate-api:${{ github.ref }}
+  group: doctor-tracker-backend:${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -13,12 +13,12 @@ permissions:
   packages: write
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
 
     steps:
-      - name: 🧠 Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Login to GHCR
@@ -31,8 +31,31 @@ jobs:
       - name: Build and push Docker image
         run: |
           set -Eeuo pipefail
+
           export DOCKER_BUILDKIT=1
+
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          IMAGE=ghcr.io/$OWNER/doctorTracker_boilerplate_api:latest
-          docker build -t "$IMAGE" .
-          docker push "$IMAGE"
+
+          IMAGE="ghcr.io/${OWNER}/doctor-tracker-server:latest"
+
+          echo "Building Docker image: ${IMAGE}"
+
+          docker build -t "${IMAGE}" .
+          docker push "${IMAGE}"
+
+      - name: Deploy Backend
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+          # Uncomment if your VPS SSH port is not 22.
+          # port: ${{ secrets.SSH_PORT }}
+
+          script: |
+            set -Eeuo pipefail
+
+            cd ~/apps/doctor-tracker-server
+
+            bash deploy.sh

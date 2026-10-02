@@ -1,34 +1,24 @@
-# Simple MongoDB + Node.js app stack.
-#
-# Production usage:
-#   - Provide your own env file (or pass it via secret manager).
-#   - Mount a persistent volume for MongoDB data.
-#
-# Usage:
-#   docker compose up --build
-#   docker compose --profile app up
-
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: doctorTracker_boilerplate_api
+    image: ghcr.io/sampod76/doctor-tracker-server:latest
+    container_name: doctor-tracker-server
     profiles: ["app"]
+
     env_file:
-      - .env
+      - /home/sampod/apps/envs/doctor/server/.env
+
     environment:
       HOST: 0.0.0.0
       PORT: 5000
       LOG_DIR: /app/logger
       LOG_LEVEL: info
-    depends_on:
-      mongodb:
-        condition: service_healthy
+
     ports:
-      - "5000:5000"
+      - "5011:5000"
+
     volumes:
       - app_logs:/app/logger
+
     healthcheck:
       test:
         [
@@ -41,37 +31,21 @@ services:
       timeout: 5s
       start_period: 10s
       retries: 3
+
     restart: unless-stopped
-    networks: [doctorTracker-network]
+
+    networks:
+      - doctor-tracker-network
+
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
 
-  mongodb:
-    image: mongo:7
-    container_name: doctorTracker_boilerplate_mongo
-    profiles: ["db", "app"]
-    environment:
-      MONGO_INITDB_DATABASE: app
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-    healthcheck:
-      test:
-        ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 })"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    restart: unless-stopped
-    networks: [doctorTracker-network]
-
 networks:
-  doctorTracker-network:
+  doctor-tracker-network:
     driver: bridge
 
 volumes:
   app_logs:
-  mongo_data:

@@ -1,6 +1,17 @@
 import type { CorsOptions } from "cors";
 import { env } from "./env";
 
+const allowedOrigins = [
+  ...env.CORS_ORIGIN.split(",")
+    .map(origin => origin.trim())
+    .filter(Boolean),
+
+  // Custom origins
+  "https://doctor-tracker-pro.netlify.app",
+  "https://api-doctor.iblossomlearn.com",
+  "http://localhost:3000",
+];
+
 export const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
     if (!origin) {
@@ -11,11 +22,7 @@ export const corsOptions: CorsOptions = {
       return callback(null, true);
     }
 
-    const allowed = env.CORS_ORIGIN.split(",")
-      .map(o => o.trim())
-      .filter(Boolean);
-
-    if (allowed.includes(origin)) {
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
 
