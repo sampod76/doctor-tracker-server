@@ -149,24 +149,4 @@ TODO: Mobile screenshot needs to be added; no separate mobile screenshot was fou
 ## Deployment
 
 The repository includes a [Dockerfile](./Dockerfile), [local Compose configuration](./docker-compose.yml), and [production Compose configuration](./docker-compose.pro.yml). Compose maps host port `5052` to container port `5000` and requires an external MongoDB connection.
-
-The [GitHub Actions workflow](./.github/workflows/deploy.yml) builds and pushes the backend image to GHCR on `main`, copies the current `deploy.sh` and `docker-compose.pro.yml` to `~/apps/doctor-tracker-server`, then invokes [deploy.sh](./deploy.sh) over SSH. The script pulls the image defined by production Compose and recreates the backend, waiting for container health. The workflow then checks the public login preflight with [scripts/check-cors.cjs](./scripts/check-cors.cjs). Credentials are supplied through GitHub Actions secrets. A successful live deployment of these changes has not been verified.
-
-Express owns CORS. The middleware order remains Helmet → CORS → compression → cookie parser → body parsers → rate limiter → health/API routes → error handler → 404. Global `cors` handles allowed OPTIONS requests with 204 before authentication, validation, or rate limiting; no separate OPTIONS handler or proxy CORS headers are required.
-
-The allowlist includes `https://doctor-tracker.iblossomlearn.org`, `https://doctor-tracker-pro.netlify.app`, `https://doctor-tracker.iblossomlearn.com`, and `http://localhost:3000`, plus comma-separated `CORS_ORIGIN` entries with whitespace and trailing slashes removed. Credentials remain enabled and responses reflect the exact accepted Origin. The existing `CORS_ORIGIN=*` mode still accepts all origins by reflecting them; set an explicit list in production as shown in `.env.example`.
-
-During diagnosis, the public `.org` login preflight returned application JSON HTTP 500 with Helmet headers and no CORS allow-origin header, while Netlify, `.com`, and localhost returned 204 with CORS headers through Nginx. This identifies an origin rejection in Express rather than a blanket Nginx OPTIONS interception. The source fallback was `.com`, not `.org`; the deployment script also changed into the frontend directory and pulled the frontend image, preventing that path from deploying backend CORS edits. The workflow did not previously copy updated deployment files to the VPS. The local ignored `dist` CORS module was also older than source; `pnpm build` regenerates it. The exact deployed image/environment and external Nginx configuration still require VPS inspection to establish their revision and settings.
-
-After deploying, verify the public endpoint (use `curl.exe` in Windows PowerShell):
-
-```bash
-curl -i -X OPTIONS "https://api-doctor.iblossomlearn.org/api/v1/auth/login" \
-  -H "Origin: https://doctor-tracker.iblossomlearn.org" \
-  -H "Access-Control-Request-Method: POST" \
-  -H "Access-Control-Request-Headers: content-type"
-```
-
-Expect HTTP 204, `Access-Control-Allow-Origin: https://doctor-tracker.iblossomlearn.org`, `Access-Control-Allow-Credentials: true`, and methods including POST. `node scripts/check-cors.cjs https://api-doctor.iblossomlearn.org` automatically validates these headers. On the VPS, run the same check against `http://127.0.0.1:5052/api/v1/auth/login` to compare Express directly with the public proxy. If only the public request fails, inspect the external Nginx upstream/header configuration; no Nginx, Cloudflare, or gateway configuration is tracked in this repository.
-
-For a safe actual POST check, send `{}` with the same Origin and `Content-Type: application/json`. Expect the existing HTTP 400 validation response with CORS headers. The regression suite also exercises invalid credentials and successful login with real bcrypt and JWT signing/verification, using mocked database queries.
+The [GitHub Actions workflow](./.github/workflows/deploy.yml) builds and pushes an image to GHCR on `main`, then invokes [deploy.sh](./deploy.sh) over SSH. Credentials are supplied through GitHub Actions secrets. These files describe the configured deployment; a successful live deployment has not been verified.

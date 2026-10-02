@@ -12,7 +12,7 @@ dist/
 
 uploadFile/
 Archive.zip
-
+test/*
 # Logs
 logs/
 *.log
