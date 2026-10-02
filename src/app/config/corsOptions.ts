@@ -1,16 +1,18 @@
 import type { CorsOptions } from "cors";
 import { env } from "./env";
 
-const allowedOrigins = [
-  ...env.CORS_ORIGIN.split(",")
-    .map(origin => origin.trim())
-    .filter(Boolean),
+const normalizeOrigin = (origin: string): string =>
+  origin.trim().replace(/\/+$/, "");
+
+const allowedOrigins = new Set([
+  ...env.CORS_ORIGIN.split(",").map(normalizeOrigin).filter(Boolean),
 
   // Custom origins
+  "https://doctor-tracker.iblossomlearn.org",
   "https://doctor-tracker-pro.netlify.app",
   "https://doctor-tracker.iblossomlearn.com",
   "http://localhost:3000",
-];
+]);
 
 export const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
@@ -18,11 +20,11 @@ export const corsOptions: CorsOptions = {
       return callback(null, true);
     }
 
-    if (env.CORS_ORIGIN === "*") {
+    if (env.CORS_ORIGIN.trim() === "*") {
       return callback(null, true);
     }
 
-    if (allowedOrigins.includes(origin)) {
+    if (allowedOrigins.has(origin)) {
       return callback(null, true);
     }
 

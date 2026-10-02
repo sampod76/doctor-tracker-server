@@ -43,6 +43,16 @@ jobs:
           docker build -t "${IMAGE}" .
           docker push "${IMAGE}"
 
+      # - name: Copy backend deployment files
+      #   uses: appleboy/scp-action@v1
+      #   with:
+      #     host: ${{ secrets.SSH_HOST }}
+      #     username: ${{ secrets.SSH_USER }}
+      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
+      #     source: "deploy.sh,docker-compose.pro.yml"
+      #     target: "~/apps/doctor-tracker-server"
+      #     overwrite: true
+
       - name: Deploy Backend
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -59,3 +69,6 @@ jobs:
             cd ~/apps/doctor-tracker-server
 
             bash deploy.sh
+
+      - name: Verify production CORS preflight
+        run: node scripts/check-cors.cjs https://api-doctor.iblossomlearn.org
