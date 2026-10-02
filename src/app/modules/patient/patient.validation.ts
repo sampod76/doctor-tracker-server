@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { ENUM_GENDER } from "../../../global/enums/users";
-import { dateSchema, objectId } from "../../../global/schema/global.schema";
+import {
+  objectId,
+  queryDateSchema,
+} from "../../../global/schema/global.schema";
 import { TREATMENT_STATUS } from "./patient.constant";
 
 const body = z
@@ -15,8 +18,8 @@ const body = z
     doctorAdvice: z.string().trim().max(5000).optional(),
     notes: z.string().trim().max(5000).optional(),
     treatmentStatus: z.nativeEnum(TREATMENT_STATUS).optional(),
-    lastVisitAt: dateSchema.nullable().optional(),
-    followUpDate: dateSchema.nullable().optional(),
+    lastVisitAt: queryDateSchema.nullable().optional(),
+    followUpDate: queryDateSchema.nullable().optional(),
   })
   .strict();
 export const createPatientZodSchema = z.object({ body });
@@ -52,8 +55,8 @@ export const listPatientsZodSchema = z.object({
       doctorId: objectId.optional(),
       gender: z.nativeEnum(ENUM_GENDER).optional(),
       treatmentStatus: z.nativeEnum(TREATMENT_STATUS).optional(),
-      followUpDate: dateSchema.optional(),
-      lastVisitAt: dateSchema.optional(),
+      followUpDate: queryDateSchema.optional(),
+      lastVisitAt: queryDateSchema.optional(),
     })
     .strict(),
 });

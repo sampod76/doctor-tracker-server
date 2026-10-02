@@ -160,6 +160,32 @@ export class PatientService extends AbstractService {
             {
               $limit: limit,
             },
+            {
+              $lookup: {
+                from: "doctors",
+                localField: "doctorId",
+                foreignField: "_id",
+                as: "doctor",
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                phone: 1,
+                doctorId: 1,
+                age: 1,
+                gender: 1,
+                treatmentStatus: 1,
+                lastVisitAt: 1,
+                followUpDate: 1,
+                createdAt: 1,
+                "doctor.name": 1,
+                "doctor.medicalRegistrationNo": 1,
+                "doctor.phone": 1,
+                "doctor.specialization": 1,
+              },
+            },
           ],
 
           countDocuments: [

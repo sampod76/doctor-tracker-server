@@ -14,6 +14,7 @@ import { env } from "../../config/env";
 import { AbstractService } from "../../core/abstract/AbstractService";
 import { ApiError } from "../../errors/ApiError";
 import { IUserRef } from "../../interfaces/user.ref";
+import { Admin } from "../admin/admin.model";
 import { User } from "../user/user.model";
 import { ChangePasswordDto, LoginDto } from "./authentication.validation";
 
@@ -24,7 +25,7 @@ type AuthTokens = {
 };
 
 export type AuthResult = AuthTokens & {
-  user: IUserRef;
+  user: IUserRef & { name: string };
 };
 
 const issueJwtTokens = (payload: Record<string, unknown>): AuthTokens => {
@@ -68,7 +69,9 @@ export class AuthenticationService extends AbstractService {
     if (!ok) {
       throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid credentials");
     }
-
+    const getAdmin = await Admin.findOne({
+      userId: user._id,
+    }).select("name");
     const payload = {
       userId: user._id.toString(),
       role: user.role,
@@ -80,6 +83,7 @@ export class AuthenticationService extends AbstractService {
         userId: user._id.toString(),
         email: user.email,
         role: user.role,
+        name: getAdmin?.name || "N/A",
       },
     };
   }
@@ -105,17 +109,20 @@ export class AuthenticationService extends AbstractService {
       throw new ApiError(httpStatus.UNAUTHORIZED, "User not found");
     }
 
+    const getAdmin = await Admin.findOne({
+      userId: user._id,
+    }).select("name");
     const payload = {
       userId: user._id.toString(),
       role: user.role,
     };
-
     return {
       ...issueJwtTokens(payload),
       user: {
         userId: user._id.toString(),
         email: user.email,
         role: user.role,
+        name: getAdmin?.name || "N/A",
       },
     };
   }

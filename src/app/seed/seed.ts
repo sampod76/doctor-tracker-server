@@ -110,12 +110,21 @@ export async function seedDatabase(): Promise<void> {
       }).session(session);
 
       if (!doctor) {
+        const medicalRegistrationNo =
+          process.env.SEED_DOCTOR_MEDICAL_REGISTRATION_NO?.trim();
+        if (!medicalRegistrationNo || medicalRegistrationNo.length > 100) {
+          throw new ApiError(
+            httpStatus.BAD_REQUEST,
+            "Set SEED_DOCTOR_MEDICAL_REGISTRATION_NO to the doctor's real registration number (1–100 characters)",
+          );
+        }
         await Doctor.create(
           [
             {
               userId: doctorUser._id,
               createdBy: adminUser._id,
               name: defaultDoctor.name,
+              medicalRegistrationNo,
               email: doctorUser.email,
               phone: defaultDoctor.phone,
               hospital: defaultDoctor.hospital,

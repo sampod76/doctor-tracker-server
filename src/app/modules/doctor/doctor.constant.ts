@@ -1,4 +1,10 @@
-export const DOCTOR_SEARCHABLE_FIELDS = ["name", "email", "phone", "hospital"];
+export const DOCTOR_SEARCHABLE_FIELDS = [
+  "name",
+  "medicalRegistrationNo",
+  "email",
+  "phone",
+  "hospital",
+];
 
 export enum SPECIALIZATION {
   CARDIOLOGY = "CARDIOLOGY",

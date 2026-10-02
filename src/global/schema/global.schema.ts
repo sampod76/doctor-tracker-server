@@ -5,10 +5,10 @@ export const objectId = z
   .refine(value => Types.ObjectId.isValid(value), {
     message: "Invalid ObjectId",
   });
-export const dateSchema = z
+export const queryDateSchema = z
   .string()
-  .datetime({ offset: true })
-  .transform(value => new Date(value));
+  .date()
+  .transform(value => new Date(`${value}T00:00:00.000Z`));
 export const BasicRequestQueryParams = z
   .object({
     status: z.enum(["ACTIVE", "INACTIVE"]).optional(),

@@ -56,7 +56,24 @@ export class DoctorService extends AbstractService {
       throw new ApiError(httpStatus.BAD_REQUEST, "Invalid doctor id");
   }
 
+  private async validateRegistrationNumber(
+    medicalRegistrationNo: string,
+    excludeId?: string,
+  ): Promise<void> {
+    const existing = await Doctor.exists({
+      medicalRegistrationNo: medicalRegistrationNo.trim(),
+      ...(excludeId ? { _id: { $ne: excludeId } } : {}),
+    });
+    if (existing) {
+      throw new ApiError(
+        httpStatus.CONFLICT,
+        "Medical registration number already exists",
+      );
+    }
+  }
+
   async create(payload: CreateDoctorDto, authUser: IUserRef) {
+    await this.validateRegistrationNumber(payload.medicalRegistrationNo);
     const session = await Doctor.db.startSession();
     try {
       return await session.withTransaction(async () => {
@@ -74,6 +91,7 @@ export class DoctorService extends AbstractService {
               userId: user._id,
               createdBy: authUser.userId,
               name: payload.name,
+              medicalRegistrationNo: payload.medicalRegistrationNo,
               email: user.email,
               specialization: payload.specialization,
               hospital: payload.hospital,
@@ -153,7 +171,13 @@ export class DoctorService extends AbstractService {
     return result;
   }
   private buildFilter(query: ListDoctorsQuery): FilterQuery<IDoctorDocument> {
-    const { searchTerm, specialization, hospital, isActive } = query;
+    const {
+      searchTerm,
+      specialization,
+      hospital,
+      isActive,
+      medicalRegistrationNo,
+    } = query;
 
     const filter: FilterQuery<IDoctorDocument> = {
       isDeleted: false,
@@ -174,6 +198,10 @@ export class DoctorService extends AbstractService {
 
     if (hospital !== undefined) {
       filter.hospital = hospital;
+    }
+
+    if (medicalRegistrationNo !== undefined) {
+      filter.medicalRegistrationNo = medicalRegistrationNo;
     }
 
     if (isActive !== undefined) {
@@ -246,6 +274,9 @@ export class DoctorService extends AbstractService {
   }
   async update(id: string, payload: UpdateDoctorDto, authUser: IUserRef) {
     this.validateId(id);
+    if (payload.medicalRegistrationNo !== undefined) {
+      await this.validateRegistrationNumber(payload.medicalRegistrationNo, id);
+    }
     const filter = { _id: id, isDeleted: false };
 
     const result = await Doctor.findOneAndUpdate(

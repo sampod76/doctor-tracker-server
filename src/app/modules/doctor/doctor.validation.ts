@@ -6,6 +6,7 @@ import { SPECIALIZATION } from "./doctor.constant";
 const body = z
   .object({
     name: z.string().trim().min(2).max(100),
+    medicalRegistrationNo: z.string().trim().min(1).max(100),
     specialization: z.nativeEnum(SPECIALIZATION),
     hospital: z.string().trim().min(2).max(200),
     phone: z.string().trim().min(6).max(20),
@@ -34,11 +35,19 @@ export const listDoctorsZodSchema = z.object({
       page: z.coerce.number().int().positive().optional(),
       limit: z.coerce.number().int().positive().max(100).optional(),
       sortBy: z
-        .enum(["createdAt", "updatedAt", "name", "specialization", "hospital"])
+        .enum([
+          "createdAt",
+          "updatedAt",
+          "name",
+          "medicalRegistrationNo",
+          "specialization",
+          "hospital",
+        ])
         .optional(),
       sortOrder: z.enum(["asc", "desc"]).optional(),
       specialization: z.nativeEnum(SPECIALIZATION).optional(),
       hospital: z.string().trim().max(200).optional(),
+      medicalRegistrationNo: z.string().trim().min(1).max(100).optional(),
       isActive: z
         .enum(["true", "false"])
         .transform(value => value === "true")

@@ -4,6 +4,7 @@ export interface IDoctorDocument extends Document {
   userId: Types.ObjectId;
   createdBy: Types.ObjectId;
   name: string;
+  medicalRegistrationNo: string;
   email: string;
   specialization: SPECIALIZATION;
   hospital: string;
@@ -24,6 +25,12 @@ const doctorSchema = new Schema<IDoctorDocument>(
     },
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
     name: { type: String, required: true, trim: true, maxlength: 100 },
+    medicalRegistrationNo: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 100,
+    },
     email: { type: String, required: true, lowercase: true, trim: true },
     specialization: {
       type: String,
@@ -45,6 +52,15 @@ const doctorSchema = new Schema<IDoctorDocument>(
   },
 );
 doctorSchema.index({ isDeleted: 1, createdAt: -1 });
+// Legacy doctors without a registration number remain readable during backfill.
+// Deleted doctors retain ownership of their registration number.
+doctorSchema.index(
+  { medicalRegistrationNo: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { medicalRegistrationNo: { $type: "string" } },
+  },
+);
 doctorSchema.index({ specialization: 1, isDeleted: 1, isActive: 1 });
 
 export const Doctor = model<IDoctorDocument>("Doctor", doctorSchema);
