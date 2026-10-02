@@ -10,6 +10,7 @@ import {
   requestShutdown,
 } from "./app/share/lifecycle";
 import { logger } from "./app/share/logger";
+import { Doctor } from "./app/modules/doctor/doctor.model";
 
 let server: http.Server | undefined;
 

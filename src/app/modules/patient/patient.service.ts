@@ -70,6 +70,7 @@ export class PatientService extends AbstractService {
       {
         $project: {
           doctorId: 0,
+          "doctor.phone": 0,
           "doctor.isDeleted": 0,
           "doctor.deletedAt": 0,
           "doctor.createdAt": 0,
@@ -182,7 +183,7 @@ export class PatientService extends AbstractService {
                 createdAt: 1,
                 "doctor.name": 1,
                 "doctor.medicalRegistrationNo": 1,
-                "doctor.phone": 1,
+                "doctor.email": 1,
                 "doctor.specialization": 1,
               },
             },
