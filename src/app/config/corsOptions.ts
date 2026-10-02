@@ -8,7 +8,7 @@ const allowedOrigins = [
 
   // Custom origins
   "https://doctor-tracker-pro.netlify.app",
-  "https://api-doctor.iblossomlearn.com",
+  "https://doctor-tracker.iblossomlearn.com",
   "http://localhost:3000",
 ];
 

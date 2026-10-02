@@ -14,7 +14,7 @@ services:
       LOG_LEVEL: info
 
     ports:
-      - "5011:5000"
+      - "5052:5000"
 
     volumes:
       - app_logs:/app/logger
