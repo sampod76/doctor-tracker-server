@@ -21,10 +21,13 @@ mongoose.connection.on("reconnected", () => {
 });
 
 export async function connectDatabase(): Promise<typeof mongoose> {
-  // Optional override for environments where Node discovers an unusable DNS resolver.
-  if (env.MONGODB_DNS_SERVERS) {
-    dns.setServers(env.MONGODB_DNS_SERVERS);
-  }
+  // Use custom DNS servers when provided, otherwise use reliable public DNS.
+  const dnsServers = env.MONGODB_DNS_SERVERS
+    ? env.MONGODB_DNS_SERVERS.map(server => server.trim()).filter(Boolean)
+    : ["1.1.1.1", "8.8.8.8"];
+
+  dns.setServers(dnsServers);
+
   mongoose.set("strictQuery", true);
 
   await mongoose.connect(env.MONGODB_URI, {
