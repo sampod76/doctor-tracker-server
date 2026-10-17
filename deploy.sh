@@ -14,7 +14,7 @@ log "Pulling latest backend image"
 docker compose -f "$COMPOSE_FILE" pull app
 
 log "Restarting backend container"
-docker compose -f "$COMPOSE_FILE" up -d --force-recreate --wait --wait-timeout 120 app
+docker compose -f "$COMPOSE_FILE" up -d --no-build --force-recreate --wait --wait-timeout 120 app
 
 log "Cleaning unused Docker images"
 docker image prune -f

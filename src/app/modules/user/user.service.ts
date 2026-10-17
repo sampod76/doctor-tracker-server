@@ -118,6 +118,7 @@ export class UserService extends AbstractService {
       },
     ];
     const pipelineResult = await User.aggregate(pipeline);
+
     const data = pipelineResult[0]?.data ?? [];
     const total = pipelineResult[0]?.countDocuments[0]?.totalData ?? 0;
 

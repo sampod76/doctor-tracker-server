@@ -25,6 +25,7 @@ export class PatientRoutes extends AbstractRoute {
         this.validateRequestZod(listPatientsZodSchema),
         this.controller.list,
       );
+
     this.router.get(
       "/statistics",
       this.authMiddleware(this.USER_ROLE.ADMIN, this.USER_ROLE.DOCTOR),
